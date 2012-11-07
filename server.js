@@ -1,8 +1,13 @@
 var http = require('http'),
     io = require('node.io');
 
+var period = 1000 * 60 * 5;
+var countdown_seconds = period / 1000;
+var countdown = countdown_seconds;
+
 var html_template = '<html><head></head><body><h1>apache git commit pinger for ghetto cordova commit hooks</h1>';
-html_template    += '<h2>{countdown} seconds left til refresh</h2>';
+html_template    += '<h2><span id="countdown">{countdown}</span> seconds left til refresh</h2>';
+html_template    += '<script type="text/javascript">var start = ' + countdown_seconds + '; setInterval(function() { var el = document.getElementById("countdown");var remaining = parseInt(el.innerText); remaining--; if (remaining < 0) remaining = start; el.innerText = remaining; }, 1000);</script>';
 html_template    += '</body></html>';
 
 String.prototype.format = function(map) {
@@ -11,13 +16,6 @@ String.prototype.format = function(map) {
     return s;
 };
 
-console.log(html_template.format({countdown:12}));
-
-return;
-
-var period = 1000 * 60 * 30;
-var countdown_seconds = period / 1000;
-var countdown = countdown_seconds;
 var url_prefix = 'http://git-wip-us.apache.org/repos/asf?p=';
 var url_suffix = '.git;a=log';
 var shas = {
@@ -25,16 +23,25 @@ var shas = {
 };
 var query = function() {
     countdown = countdown_seconds;
+    var post_data = {};
+    var should_post = false;
     for (var repo in shas) if (shas.hasOwnProperty(repo)) {
-        io.scrape(function() {
-            this.getHtml(url_prefix + repo + url_suffix, function(err, $) {
-                var href = $('.title_text .log_link a').first().attribs.href;
-                var latest_sha = /;h=([a-z0-9]*)$/.exec(href)[1];
-                if (shas[repo] != latest_sha) {
-                    // notify!
-                }
+        (function(lib) {
+            io.scrape(function() {
+                this.getHtml(url_prefix + lib + url_suffix, function(err, $) {
+                    var href = $('.title_text .log_link a').first().attribs.href;
+                    var latest_sha = /;h=([a-z0-9]*)$/.exec(href)[1];
+                    if (shas[lib] != latest_sha) {
+                        should_post = true;
+                        post_data[lib] = latest_sha;
+                        shas[lib] = latest_sha;
+                    }
+                });
             });
-        });
+        })(repo);
+    }
+    if (should_post) {
+        // compose a POST and fire it off to our CI server!
     }
 };
 
@@ -46,7 +53,9 @@ var cd_iv = setInterval(function() {
 
 http.createServer(function (req, res) {
   res.writeHead(200, {'Content-Type': 'text/html'});
-  res.write(html_template.replace(/[[]]/, '<h2>'+countdown+' seconds left til refresh</h2><h3></h3>'));
+  res.write(html_template.format({
+      countdown:countdown
+  }));
   res.end();
 }).listen(8899);
 
