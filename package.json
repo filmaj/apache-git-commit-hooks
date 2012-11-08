@@ -1,6 +1,6 @@
 {
   "name": "apache-git-commit-hooks",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": {
     "name": "Fil Maj",
     "email": "maj.fil@gmail.com"
@@ -22,8 +22,8 @@
   },
   "contributors": [],
   "dependencies": {
-      "node.io":"",
-      "request":">=2.11.0"
+    "node.io": "",
+    "request": ">=2.11.0"
   },
   "devDependencies": {},
   "engines": {
@@ -38,6 +38,7 @@
       "url": "https://github.com/nodeapps/helloworld/raw/master/LICENSE"
     }
   ],
-  "analyze": false,
-  "optionalDependencies": {}
+  "analyze": true,
+  "optionalDependencies": {},
+  "subdomain": "fil.apache-git-commit-hooks"
 }

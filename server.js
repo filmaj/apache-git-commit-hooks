@@ -2,6 +2,11 @@ var http = require('http'),
     io = require('node.io'),
     request = require('request');
 
+// var url = '96.49.144.164'; // office
+var url = '174.6.199.53'; // home
+// var port = '6969'; // office
+var port = '8088';
+
 var period = 1000 * 60 * 5;
 var countdown_seconds = period / 1000;
 var countdown = countdown_seconds;
@@ -21,12 +26,30 @@ var url_prefix = 'http://git-wip-us.apache.org/repos/asf?p=';
 var url_suffix = '.git;a=log';
 var shas = {
     'incubator-cordova-android':null,
-    'incubator-cordova-ios':null
+    'incubator-cordova-ios':null,
+    'incubator-cordova-mobile-spec':null
 };
 var query = function() {
     countdown = countdown_seconds;
-    var post_data = {};
     var should_post = false;
+    var post_data = {};
+    var counter = 0;
+    var end = function() {
+        if (++counter == 3) {
+            if (should_post) {
+                // compose a POST and fire it off to our CI server!
+                console.log('issuing request');
+                request.post({
+                    uri:'http://' + url + ':' + port +'/commit',
+                    body:JSON.stringify(post_data)
+                }, function(error, response, body) {
+                    if (error) console.log('holy shit there was an error sending POST to ' + url + ': ' + error);
+                    if (response.statusCode >= 200 && response.statusCode < 300) console.log('successfully posted results at ' + new Date());
+                    else console.log('received bad response code at ' + new Date());
+                });
+            }
+        }
+    };
     for (var repo in shas) if (shas.hasOwnProperty(repo)) {
         (function(lib) {
             io.scrape(function() {
@@ -34,24 +57,15 @@ var query = function() {
                     var href = $('.title_text .log_link a').first().attribs.href;
                     var latest_sha = /;h=([a-z0-9]*)$/.exec(href)[1];
                     if (shas[lib] != latest_sha) {
+                        console.log('New commit for ' + lib + ' (' + latest_sha + ').');
                         should_post = true;
                         post_data[lib] = latest_sha;
                         shas[lib] = latest_sha;
                     }
+                    end();
                 });
             });
         })(repo);
-    }
-    if (should_post) {
-        // compose a POST and fire it off to our CI server!
-        request.post({
-            uri:'http://96.49.144.164:6969/commit',
-            body:JSON.stringify(post_data)
-        }, function(error, response, body) {
-            if (error) console.log('holy shit there was an erro: ' + error);
-            if (response.statusCode >= 200 && response.statusCode < 300) console.log('successfully posted results at ' + new Date());
-            else console.log('received bad response code at ' + new Date());
-        });
     }
 };
 
