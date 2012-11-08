@@ -7,7 +7,7 @@ var url = '174.6.199.53'; // home
 // var port = '6969'; // office
 var port = '8088';
 
-var period = 1000 * 60 * 5;
+var period = 1000 * 60 * 60;
 var countdown_seconds = period / 1000;
 var countdown = countdown_seconds;
 var url_prefix = 'http://git-wip-us.apache.org/repos/asf?p=';
