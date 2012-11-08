@@ -10,9 +10,20 @@ var port = '8088';
 var period = 1000 * 60 * 5;
 var countdown_seconds = period / 1000;
 var countdown = countdown_seconds;
+var url_prefix = 'http://git-wip-us.apache.org/repos/asf?p=';
+var url_suffix = '.git;a=log';
+var shas = {
+    'incubator-cordova-android':null,
+    'incubator-cordova-ios':null,
+    'incubator-cordova-mobile-spec':null
+};
 
 var html_template = '<html><head></head><body><h1>apache git commit pinger for ghetto cordova commit hooks</h1>';
 html_template    += '<h2><span id="countdown">{countdown}</span> seconds left til refresh</h2>';
+html_template    += '<h3>latest SHAs for tracked projects</h3>';
+for (var lib in shas) if (shas.hasOwnProperty(lib)) {
+    html_template+= '<p><b>' + lib + '</b>:&nbsp;<a href="https://git-wip-us.apache.org/repos/asf?p=' + lib + '.git;a=commit;h={'+lib+'}">{'+lib+'}</a></p>';
+};
 html_template    += '<script type="text/javascript">var start = ' + countdown_seconds + '; setInterval(function() { var el = document.getElementById("countdown");var remaining = parseInt(el.innerText); remaining--; if (remaining < 0) remaining = start; el.innerText = remaining; }, 1000);</script>';
 html_template    += '</body></html>';
 
@@ -22,13 +33,6 @@ String.prototype.format = function(map) {
     return s;
 };
 
-var url_prefix = 'http://git-wip-us.apache.org/repos/asf?p=';
-var url_suffix = '.git;a=log';
-var shas = {
-    'incubator-cordova-android':null,
-    'incubator-cordova-ios':null,
-    'incubator-cordova-mobile-spec':null
-};
 var query = function() {
     countdown = countdown_seconds;
     var should_post = false;
@@ -76,11 +80,15 @@ var cd_iv = setInterval(function() {
 }, 1000);
 
 http.createServer(function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.write(html_template.format({
-      countdown:countdown
-  }));
-  res.end();
+    var data = {
+        countdown:countdown
+    };
+    for (var lib in shas) if (shas.hasOwnProperty(lib)) {
+        data[lib] = shas[lib];
+    }
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write(html_template.format(data));
+    res.end();
 }).listen(8899);
 
 console.log('> http server has started on port 8899');
