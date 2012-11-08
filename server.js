@@ -47,7 +47,10 @@ var query = function() {
                     uri:'http://' + url + ':' + port +'/commit',
                     body:JSON.stringify(post_data)
                 }, function(error, response, body) {
-                    if (error) console.log('holy shit there was an error sending POST to ' + url + ': ' + error);
+                    if (error) {
+                        console.log('holy shit there was an error sending POST to ' + url + ': ' + error);
+                        return;
+                    }
                     if (response.statusCode >= 200 && response.statusCode < 300) console.log('successfully posted results at ' + new Date());
                     else console.log('received bad response code at ' + new Date());
                 });
@@ -91,4 +94,4 @@ http.createServer(function (req, res) {
     res.end();
 }).listen(8899);
 
-console.log('> http server has started on port 8899');
+console.log('> http server has started');
