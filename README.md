@@ -12,6 +12,8 @@ It works, and I don't have to sit idly waiting for .. well, something. Win-win!
 
 ## Run locally
 
+    cd apache-git-commit-hooks
+    npm install
     node server.js
 
 ## Deploy to nodejitsu

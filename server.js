@@ -1,5 +1,6 @@
 var http = require('http'),
-    io = require('node.io');
+    io = require('node.io'),
+    request = require('request');
 
 var period = 1000 * 60 * 5;
 var countdown_seconds = period / 1000;
@@ -19,7 +20,8 @@ String.prototype.format = function(map) {
 var url_prefix = 'http://git-wip-us.apache.org/repos/asf?p=';
 var url_suffix = '.git;a=log';
 var shas = {
-    'incubator-cordova-android':null
+    'incubator-cordova-android':null,
+    'incubator-cordova-ios':null
 };
 var query = function() {
     countdown = countdown_seconds;
@@ -42,6 +44,14 @@ var query = function() {
     }
     if (should_post) {
         // compose a POST and fire it off to our CI server!
+        request.post({
+            uri:'http://96.49.144.164:6969/commit',
+            body:JSON.stringify(post_data)
+        }, function(error, response, body) {
+            if (error) console.log('holy shit there was an erro: ' + error);
+            if (response.statusCode >= 200 && response.statusCode < 300) console.log('successfully posted results at ' + new Date());
+            else console.log('received bad response code at ' + new Date());
+        });
     }
 };
 
