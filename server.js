@@ -15,7 +15,8 @@ var url_suffix = '.git;a=log';
 var shas = {
     'incubator-cordova-android':null,
     'incubator-cordova-ios':null,
-    'incubator-cordova-mobile-spec':null
+    'incubator-cordova-mobile-spec':null,
+    'incubator-cordova-blackberry-webworks':null
 };
 
 var html_template = '<html><head></head><body><h1>apache git commit pinger for ghetto cordova commit hooks</h1>';
@@ -35,26 +36,23 @@ String.prototype.format = function(map) {
 
 var query = function() {
     countdown = countdown_seconds;
-    var should_post = false;
     var post_data = {};
     var counter = 0;
     var end = function() {
         if (++counter == 3) {
-            if (should_post) {
-                // compose a POST and fire it off to our CI server!
-                console.log('issuing request');
-                request.post({
-                    uri:'http://' + url + ':' + port +'/commit',
-                    body:JSON.stringify(post_data)
-                }, function(error, response, body) {
-                    if (error) {
-                        console.log('holy shit there was an error sending POST to ' + url + ': ' + error);
-                        return;
-                    }
-                    if (response.statusCode >= 200 && response.statusCode < 300) console.log('successfully posted results at ' + new Date());
-                    else console.log('received bad response code at ' + new Date());
-                });
-            }
+            // compose a POST and fire it off to our CI server!
+            console.log('issuing request');
+            request.post({
+                uri:'http://' + url + ':' + port +'/commit',
+                body:JSON.stringify(post_data)
+            }, function(error, response, body) {
+                if (error) {
+                    console.log('holy shit there was an error sending POST to ' + url + ': ' + error);
+                    return;
+                }
+                if (response.statusCode >= 200 && response.statusCode < 300) console.log('successfully posted results at ' + new Date());
+                else console.log('received bad response code at ' + new Date());
+            });
         }
     };
     for (var repo in shas) if (shas.hasOwnProperty(repo)) {
