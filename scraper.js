@@ -4,6 +4,7 @@ var io = require('node.io'),
 var period = 1000 * 60 * 30; // 30 min default  interval period
 var url_prefix = 'http://git-wip-us.apache.org/repos/asf?p=';
 var url_suffix = '.git;a=log';
+// libraries to watch. by default it's some cordova libraries
 var shas = {
     'incubator-cordova-android':null,
     'incubator-cordova-ios':null,
@@ -24,6 +25,7 @@ function scrape(callback) {
     for (var repo in shas) if (shas.hasOwnProperty(repo)) {
         (function(lib) {
             io.scrape(function() {
+                // TODO: this probably needs some error checking
                 this.getHtml(url_prefix + lib + url_suffix, function(err, $) {
                     var href = $('.title_text .log_link a').first().attribs.href;
                     var latest_sha = /;h=([a-z0-9]*)$/.exec(href)[1];
@@ -39,8 +41,18 @@ function scrape(callback) {
     }
 }
 module.exports = function apache_git_commit_hooks(config, callback) {
-    // configurable period
-    if (config && config.period) period = config.period;
+    // config
+    if (config) {
+        // configurable period
+        if (config.period) period = config.period;
+        // configurable libraries to watch
+        if (config.libraries) {
+            shas = {};
+            config.libraries.forEach(function(lib) {
+                shas[lib] = null;
+            });
+        }
+    }
 
     // fire off the scraping immediately
     scrape(callback);

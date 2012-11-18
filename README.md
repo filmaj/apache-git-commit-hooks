@@ -4,23 +4,33 @@ Sometimes you can't do things for no good reason. When those situations arise, y
 
 # Why?
 
-I want git commit hooks for the Apache project I work on. I can't seem to get Apache Infra to work with me on this. So, instead, I wrote a dumb server to blindly scrape the git web frontend for Apache projects (http://git-wip-us.apache.org/repos/asf) every x minutes, and POST results to our project's continuous integration server.
+I want git commit hooks for the Apache project I work on. I can't seem to get Apache Infra to work with me on this. So, instead, this module blindly scrape the git web frontend for Apache projects (http://git-wip-us.apache.org/repos/asf) every x minutes and fires your callback with an object hash of libraries -> shas.
 
 It works, and I don't have to sit idly waiting for .. well, something. Win-win!
 
+# Installation
+
+    npm install apache-git-commit-hooks
+
 # Usage
 
-## Run locally
+A function that takes two parameters:
 
-    cd apache-git-commit-hooks
-    npm install
-    node server.js
+  - a period on which to scrape, in milliseconds. Default is 30 minutes.
+  - an array of project names to scrape. Defaults are the Cordova projects.
 
-## Deploy to nodejitsu
+The return value is the interval timeout id, just in case you wanna clear the interval.
 
-    jitsu deploy
+## Example
 
-*You will now be prompted for a `subdomain` to deploy your application on*
+    var scraper = require('apache-git-commit-hooks');
+    var interval_id = scraper({
+        period:5000,
+        libraries:['couchdb']
+    }, function(shas) { 
+        /* an object of libraries -> shas */
+        console.log('The latest SHA from the couch git server is ' + shas['couchdb']);
+    });
 
 # License
 
