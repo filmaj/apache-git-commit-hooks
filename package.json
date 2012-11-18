@@ -1,12 +1,12 @@
 {
   "name": "apache-git-commit-hooks",
-  "version": "0.0.3-2",
+  "version": "0.0.4",
   "author": {
     "name": "Fil Maj",
     "email": "maj.fil@gmail.com"
   },
-  "description": "a timed scraper for apache git web frontend to enable git commit hooks. git commit hooks would do the job too but eh, cant do that at apache.",
-  "main": "",
+  "description": "a scraper for apache git web frontend to enable git commit hooks. git commit hooks would do the job too but eh, cant do that at apache.",
+  "main": "scraper.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/filmaj/apache-git-commit-hooks.git"
@@ -17,9 +17,6 @@
     "commit",
     "hook"
   ],
-  "scripts": {
-    "start": "node server.js"
-  },
   "contributors": [],
   "dependencies": {
     "node.io": "",
@@ -37,8 +34,5 @@
       "type": "MIT",
       "url": "https://github.com/nodeapps/helloworld/raw/master/LICENSE"
     }
-  ],
-  "analyze": true,
-  "optionalDependencies": {},
-  "subdomain": "fil.apache-git-commit-hooks"
+  ]
 }
