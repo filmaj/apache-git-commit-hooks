@@ -1,5 +1,4 @@
-var io = require('node.io'),
-    request = require('request');
+var io = require('node.io');
 
 var period = 1000 * 60 * 30; // 30 min default  interval period
 var url_prefix = 'http://git-wip-us.apache.org/repos/asf?p=';
@@ -7,10 +6,10 @@ var url_suffix = '.git;a=log';
 // libraries to watch. by default it's some cordova libraries
 var num_libs = 4;
 var shas = {
-    'incubator-cordova-android':null,
-    'incubator-cordova-ios':null,
-    'incubator-cordova-mobile-spec':null,
-    'incubator-cordova-blackberry-webworks':null
+    'cordova-android':null,
+    'cordova-ios':null,
+    'cordova-mobile-spec':null,
+    'cordova-blackberry':null
 };
 
 function scrape(callback) {
