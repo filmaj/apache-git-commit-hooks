@@ -5,6 +5,7 @@ var period = 1000 * 60 * 30; // 30 min default  interval period
 var url_prefix = 'http://git-wip-us.apache.org/repos/asf?p=';
 var url_suffix = '.git;a=log';
 // libraries to watch. by default it's some cordova libraries
+var num_libs = 4;
 var shas = {
     'incubator-cordova-android':null,
     'incubator-cordova-ios':null,
@@ -17,7 +18,7 @@ function scrape(callback) {
     var has_new_sha = false;
     var counter = 0;
     var end = function() {
-        if (++counter == 4) {
+        if (++counter == num_libs) {
             if (has_new_sha) callback(new_shas);
             else callback(null);
         }
@@ -25,16 +26,18 @@ function scrape(callback) {
     for (var repo in shas) if (shas.hasOwnProperty(repo)) {
         (function(lib) {
             io.scrape(function() {
-                // TODO: this probably needs some error checking
                 this.getHtml(url_prefix + lib + url_suffix, function(err, $) {
-                    var href = $('.title_text .log_link a').first().attribs.href;
-                    var latest_sha = /;h=([a-z0-9]*)$/.exec(href)[1];
-                    if (shas[lib] != latest_sha) {
-                        has_new_sha = true;
-                        new_shas[lib] = latest_sha;
-                        shas[lib] = latest_sha;
+                    if (err) console.error('Error scraping url', err);
+                    else {
+                        var href = $('.title_text .log_link a').first().attribs.href;
+                        var latest_sha = /;h=([a-z0-9]*)$/.exec(href)[1];
+                        if (shas[lib] != latest_sha) {
+                            has_new_sha = true;
+                            new_shas[lib] = latest_sha;
+                            shas[lib] = latest_sha;
+                        }
+                        end();
                     }
-                    end();
                 });
             });
         })(repo);
